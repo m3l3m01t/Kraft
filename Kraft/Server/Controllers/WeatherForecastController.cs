@@ -5,9 +5,30 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Web.Http.Controllers;
+using System.Net.Http.Formatting;
+using Newtonsoft.Json.Serialization;
 
 namespace Kraft.Server.Controllers
 {
+    public class CustomJsonAttribute : Attribute, IControllerConfiguration
+    {
+        public void Initialize(HttpControllerSettings controllerSettings, HttpControllerDescriptor controllerDescriptor)
+        {
+            var formatter = controllerSettings.Formatters.JsonFormatter;
+
+            controllerSettings.Formatters.Remove(formatter);
+
+            formatter = new JsonMediaTypeFormatter
+            {
+                SerializerSettings = { ContractResolver = new CamelCasePropertyNamesContractResolver() }
+            };
+
+            controllerSettings.Formatters.Insert(0, formatter);
+        }
+    }
+
+    [CustomJson]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
