@@ -5,12 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Web.Http.Controllers;
-using System.Net.Http.Formatting;
-using Newtonsoft.Json.Serialization;
 
 namespace Kraft.Server.Controllers
 {
+#if false
     public class CustomJsonAttribute : Attribute, IControllerConfiguration
     {
         public void Initialize(HttpControllerSettings controllerSettings, HttpControllerDescriptor controllerDescriptor)
@@ -27,8 +25,9 @@ namespace Kraft.Server.Controllers
             controllerSettings.Formatters.Insert(0, formatter);
         }
     }
+#endif
 
-    [CustomJson]
+    //[CustomJson]
     [ApiController]
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
