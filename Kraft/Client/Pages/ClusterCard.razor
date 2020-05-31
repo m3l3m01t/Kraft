@@ -1,0 +1,29 @@
+<div>
+    <Card>
+        <CardImage Source="/assets/images/9.jpg" Alt="Placeholder image" />
+        <CardBody>
+            <CardTitle Size="5">Cluster @Cluster.Name</CardTitle>
+            <CardText>
+                @Cluster.Description
+            </CardText>
+            <Button Color="Color.Primary" @onclick="OnConnect">Connect</Button>
+            <Button Color="Color.Secondary" @onclick="OnEditCluster">Modify</Button>
+        </CardBody>
+    </Card>
+</div>
+
+@code {
+    [Parameter]
+    public Kraft.Shared.Cluster Cluster { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnEditCluster { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnConnect { get; set; }
+}

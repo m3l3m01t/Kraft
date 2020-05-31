@@ -1,0 +1,21 @@
+﻿<div>
+    <Card>
+        <CardImage Source="/assets/images/9.jpg" Alt="Placeholder image" />
+        <CardBody>
+            <CardTitle Size="5">New Cluster</CardTitle>
+            <CardText>
+            </CardText>
+            <Button Color="Color.Primary" @onclick="OnNewClusterCb">Add</Button>
+        </CardBody>
+    </Card>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnNewClusterCb { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}

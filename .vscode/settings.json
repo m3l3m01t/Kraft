@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.detectLocale": "off",
+    "terminal.integrated.env.windows": {
+        "LANG": null
+    }
+}

@@ -1,4 +1,4 @@
-using Blazorise;
+﻿using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 
@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using Kraft.Server.Data;
 
 namespace Kraft.Server
 {
@@ -35,6 +37,11 @@ namespace Kraft.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            //services.AddDbContext<KraftContext>(options =>
+            //        options.UseSqlServer(Configuration.GetConnectionString("KraftContext")));
+            services.AddDbContext<KraftContext>(options =>
+                    options.UseSqlite(Configuration.GetConnectionString("SqliteContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

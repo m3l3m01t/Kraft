@@ -202,4 +202,14 @@ app {
         display: none;
     }
 
+    .clusters {
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
+
+    .clusters >div {
+        width: 320px;
+        margin: 8px;
+    }
 }

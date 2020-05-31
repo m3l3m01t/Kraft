@@ -1,20 +1,67 @@
 ﻿@page "/clusters"
+@inject HttpClient Http
+
 <h3>Clusters</h3>
 
-<div>
-    <Card>
-        <CardImage Source="/assets/images/9.jpg" Alt="Placeholder image">
-        </CardImage>
-        <CardBody>
-            <CardTitle Size="5">Card title</CardTitle>
-            <CardText>
-                Some quick example text to build on the card title and make up the bulk of the card's content.
-            </CardText>
-            <Button Color="Color.Primary">Button</Button>
-        </CardBody>
-    </Card>
-</div>
+<EditClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges"/> 
+
+<Container class="clusters" Fluid="true">
+    <ClusterNewCard OnNewClusterCb="@OnNewClusterClicked"/>
+
+    @foreach (var cluster in _clusters)
+    {
+        <ClusterCard Cluster=cluster
+                     OnEditCluster="@(()=>_modal.EditCluster(cluster, false))"
+                     OnConnect="@(()=>OnConnect(cluster))">
+        </ClusterCard>
+    }
+</Container>
 
 @code {
+    private EditClusterModal _modal;
+    private Visibility showModal = Visibility.Always;
 
+    private Kraft.Shared.Cluster[] _clusters = new Kraft.Shared.Cluster[] { };
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clusters = await Http.GetFromJsonAsync<Kraft.Shared.Cluster[]>("api/Clusters");
+
+        // always call StateHasChanged!
+        StateHasChanged();
+    }
+
+    protected void OnConnect(Kraft.Shared.Cluster cluster)
+    {
+        Console.WriteLine("Hello world {0}", cluster.Name);
+    }
+
+    protected void OnNewClusterClicked(MouseEventArgs arg)
+    {
+        var cluster = new Kraft.Shared.Cluster { Name = "New Cluster" };
+        _modal.EditCluster(cluster, true);
+        //StateHasChanged();
+    }
+
+    protected void OnHideModal()
+    {
+        //StateHasChanged();
+    }
+
+    protected async Task OnSaveChanges(Kraft.Shared.Cluster cluster)
+    {
+        if (cluster.Id is null)
+        {
+            cluster.Id = Guid.NewGuid().ToString();
+            await Http.PostAsJsonAsync<Kraft.Shared.Cluster>("api/Clusters", cluster);
+        }
+        else
+        {
+            await Http.PutAsJsonAsync<Kraft.Shared.Cluster>($"api/Clusters/{cluster.Id}", cluster);
+        }
+
+        _clusters = await Http.GetFromJsonAsync<Kraft.Shared.Cluster[]>("api/Clusters");
+
+        StateHasChanged();
+    }
 }

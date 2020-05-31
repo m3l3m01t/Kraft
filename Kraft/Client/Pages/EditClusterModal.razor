@@ -1,0 +1,92 @@
+﻿<Modal @ref="_modal">
+    <ModalBackdrop />
+    <ModalContent IsCentered="true">
+        <ModalHeader>
+            <ModalTitle>
+                <Icon Name="IconName.Edit" />
+                @Title
+            </ModalTitle>
+            <CloseButton Clicked="@HideModal" />
+        </ModalHeader>
+        <ModalBody>
+            <Field>
+                <FieldLabel>Cluster Name</FieldLabel>
+                <TextEdit Placeholder="Cluster Name..." @bind-Text="Value.Name" />
+            </Field>
+            <Field>
+                <FieldLabel>Bootstrap Servers</FieldLabel>
+                <TextEdit Placeholder="Server:Port" @bind-Text="Value.Brokers" />
+            </Field>
+            <Field>
+                <FieldLabel>Zookeeper Servers</FieldLabel>
+                <TextEdit Placeholder="Server:Port" @bind-Text="Value.ZkServers" />
+            </Field>
+            <Field>
+                <FieldLabel>Description</FieldLabel>
+                <TextEdit Placeholder="Cluster description ..." @bind-Text="Value.Description" />
+            </Field>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
+            <Button Color="Color.Primary" Clicked="@SaveChanges">@PrimaryText</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+@code {
+    private Modal _modal;
+
+    private string PrimaryText { get; set; }
+    private string Title { get; set; }
+
+    public Kraft.Shared.Cluster Value { get; set; }
+
+    [Parameter]
+    public EventCallback<Kraft.Shared.Cluster> OnSaveChanges { get; set; }
+
+    [Parameter]
+    public EventCallback OnHideModal { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        Value = new Kraft.Shared.Cluster { Name = "New Cluster" };
+
+        return base.OnInitializedAsync();
+    }
+
+    protected Task HideModal()
+    {
+        _modal.Hide();
+
+        return OnHideModal.InvokeAsync(null);
+    }
+
+    protected async Task SaveChanges()
+    {
+        await OnSaveChanges.InvokeAsync(Value);
+
+        _modal.Hide();
+    }
+
+    public Task EditCluster(Kraft.Shared.Cluster cluster, bool add)
+    {
+        Value = cluster;
+
+        if (add)
+        {
+            PrimaryText = "Add";
+            Title = "Add Cluster";
+        }
+        else
+        {
+            PrimaryText = "Apply";
+            Title = "Edit Cluster";
+        }
+
+        StateHasChanged();
+
+        _modal.Show();
+
+        return Task.CompletedTask;
+    }
+}
