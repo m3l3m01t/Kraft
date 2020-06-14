@@ -2,21 +2,21 @@
 
 <h1>Counter</h1>
 
-<p>Current count: @currentCount</p>
+<p>Current count: @_currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="OnIncreaseCount">Click me</button>
 
 <Heading Size="HeadingSize.Is1">Counter</Heading>
 
-<Paragraph>Current count: @currentCount</Paragraph>
+<Paragraph>Current count: @_currentCount</Paragraph>
 
-<Button Color="Color.Primary" Clicked="IncrementCount">Click me</Button>
+<Button Color="Color.Primary" Clicked="@OnIncreaseCount">Click me</Button>
 
 @code {
-    int currentCount = 0;
+    int _currentCount = 0;
 
-    void IncrementCount()
+    void OnIncreaseCount()
     {
-        currentCount++;
+        _currentCount++;
     }
 }

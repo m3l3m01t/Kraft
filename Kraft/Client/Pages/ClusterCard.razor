@@ -6,8 +6,10 @@
             <CardText>
                 @Cluster.Description
             </CardText>
-            <Button Color="Color.Primary" @onclick="OnConnect">Connect</Button>
-            <Button Color="Color.Secondary" @onclick="OnEditCluster">Modify</Button>
+            <Buttons>
+                <Button Color="Color.Primary" @onclick="OnConnect">Connect</Button>
+                <Button Color="Color.Secondary" Clicked="@OnEditCluster">Modify</Button>
+            </Buttons>
         </CardBody>
     </Card>
 </div>
@@ -22,8 +24,8 @@
     }
 
     [Parameter]
-    public EventCallback<MouseEventArgs> OnEditCluster { get; set; }
+    private EventCallback OnEditCluster { get; set; }
 
     [Parameter]
-    public EventCallback<MouseEventArgs> OnConnect { get; set; }
+    private EventCallback OnConnect { get; set; }
 }

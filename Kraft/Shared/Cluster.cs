@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Kraft.Shared
+﻿namespace Kraft.Shared
 {
     public class Cluster
     {

@@ -54,14 +54,14 @@
         return base.OnInitializedAsync();
     }
 
-    protected Task HideModal()
+    private Task HideModal()
     {
         _modal.Hide();
 
         return OnHideModal.InvokeAsync(null);
     }
 
-    protected async Task SaveChanges()
+    private async Task SaveChanges()
     {
         await OnSaveChanges.InvokeAsync(Value);
 

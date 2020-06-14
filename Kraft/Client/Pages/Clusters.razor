@@ -19,7 +19,6 @@
 
 @code {
     private EditClusterModal _modal;
-    private Visibility showModal = Visibility.Always;
 
     private Kraft.Shared.Cluster[] _clusters = new Kraft.Shared.Cluster[] { };
 
@@ -31,24 +30,24 @@
         StateHasChanged();
     }
 
-    protected void OnConnect(Kraft.Shared.Cluster cluster)
+    private void OnConnect(Kraft.Shared.Cluster cluster)
     {
         Console.WriteLine("Hello world {0}", cluster.Name);
     }
 
-    protected void OnNewClusterClicked(MouseEventArgs arg)
+    private void OnNewClusterClicked(MouseEventArgs arg)
     {
         var cluster = new Kraft.Shared.Cluster { Name = "New Cluster" };
         _modal.EditCluster(cluster, true);
         //StateHasChanged();
     }
 
-    protected void OnHideModal()
+    private void OnHideModal()
     {
         //StateHasChanged();
     }
 
-    protected async Task OnSaveChanges(Kraft.Shared.Cluster cluster)
+    private async Task OnSaveChanges(Kraft.Shared.Cluster cluster)
     {
         if (cluster.Id is null)
         {
