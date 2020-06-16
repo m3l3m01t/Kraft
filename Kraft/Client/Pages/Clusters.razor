@@ -1,12 +1,17 @@
 ﻿@page "/clusters"
+@using Microsoft.AspNetCore.SignalR.Client
+
+@implements IDisposable
+
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 
 <h3>Clusters</h3>
 
-<EditClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges"/> 
+<EditClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges" />
 
 <Container class="clusters" Fluid="true">
-    <ClusterNewCard OnNewClusterCb="@OnNewClusterClicked"/>
+    <ClusterNewCard OnNewClusterCb="@OnNewClusterClicked" />
 
     @foreach (var cluster in _clusters)
     {
@@ -17,22 +22,64 @@
     }
 </Container>
 
+<p>Welcome @_status to Kraft</p>
+
 @code {
     private EditClusterModal _modal;
 
     private Kraft.Shared.Cluster[] _clusters = new Kraft.Shared.Cluster[] { };
 
+    private string _status = "";
+
+    private HubConnection hubConnection;
+    private List<string> messages = new List<string>();
+    private string userInput;
+    private string messageInput;
+
     protected override async Task OnInitializedAsync()
     {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/khub"))
+            .WithAutomaticReconnect(new [] {TimeSpan.FromSeconds(1)})
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            var encodedMsg = $"{user}: {message}";
+            messages.Add(encodedMsg);
+            StateHasChanged();
+        });
+
+        hubConnection.On<string>("Welcome", connectionId =>
+        {
+            _status = connectionId;
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
         _clusters = await Http.GetFromJsonAsync<Kraft.Shared.Cluster[]>("api/Clusters");
 
         // always call StateHasChanged!
         StateHasChanged();
     }
 
+    Task Send() =>
+        hubConnection.SendAsync("SendMessage", userInput, messageInput);
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
     private void OnConnect(Kraft.Shared.Cluster cluster)
     {
         Console.WriteLine("Hello world {0}", cluster.Name);
+
+        NavigationManager.NavigateTo($"clusters/{cluster.Id}");
     }
 
     private void OnNewClusterClicked(MouseEventArgs arg)
