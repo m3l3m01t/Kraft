@@ -44,12 +44,12 @@ namespace Kraft.Server
             {
                 options.ChangeTextOnKeyPress = true; // optional
             })
-                .AddBootstrapProviders()
-                .AddFontAwesomeIcons();
+            .AddBootstrapProviders()
+            .AddFontAwesomeIcons();
 
-            services.AddGraphQL(opt =>
-            {
-            });
+            // services.AddGraphQL(opt =>
+            // {
+            // });
             services.AddHealthChecks();
 
             services.AddSignalR();
@@ -74,6 +74,8 @@ namespace Kraft.Server
 
                 return ConnectionMultiplexer.Connect(config.RedisHost);
             });
+
+            services.AddSingleton<Beacon>();
 
             services.AddHostedService<HeartBeator>();
 
@@ -110,8 +112,8 @@ namespace Kraft.Server
               .UseBootstrapProviders()
               .UseFontAwesomeIcons();
 
-            app.UseAuthentication();
-            app.UseAuthorization();
+            // app.UseAuthentication();
+            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -121,7 +123,7 @@ namespace Kraft.Server
 
                 endpoints.MapHub<KafkaHub>("/khub");
 
-                endpoints.MapHealthChecks("/healthz").RequireAuthorization();
+                // endpoints.MapHealthChecks("/healthz").RequireAuthorization();
                 endpoints.MapFallbackToFile("index.html");
 
                 //var nested = endpoints.CreateApplicationBuilder();

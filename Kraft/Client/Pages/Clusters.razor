@@ -1,6 +1,8 @@
 ﻿@page "/clusters"
 @using Microsoft.AspNetCore.SignalR.Client
 
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Linq;
 @implements IDisposable
 
 @inject HttpClient Http
@@ -47,6 +49,14 @@
         {
             var encodedMsg = $"{user}: {message}";
             messages.Add(encodedMsg);
+            StateHasChanged();
+        });
+
+        hubConnection.On<Kraft.Shared.Beat>("HeartBeat", o =>
+        {
+            var jObj = JObject.FromObject(o);
+            _status = jObj.ToString();
+
             StateHasChanged();
         });
 

@@ -1,16 +1,22 @@
+using Kraft.Shared;
+using Microsoft.AspNetCore.SignalR;
 using System;
+using System.Threading.Tasks;
 
 namespace Kraft.Server.Hubs
 {
-    public class BeatEventArgs : EventArgs
-    {
-        public DateTime? TimeStamp { get; set; }
-        public int Strength { get; set; }
-
-        public long Beats { get; set; }
-    }
     public class Beacon
     {
-        public event EventHandler<BeatEventArgs> HeatBeat;
+        private readonly IHubContext<KafkaHub> _hubCtx;
+
+        public Beacon(IHubContext<KafkaHub> hubCtx)
+        {
+            _hubCtx = hubCtx;
+        }
+
+        internal Task NotifyAsync(Beat beat)
+        {
+            return _hubCtx.Clients.All.SendAsync("HeartBeat", beat);
+        }
     }
 }

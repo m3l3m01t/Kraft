@@ -8,11 +8,9 @@ namespace Kraft.Server.Hubs
     public class KafkaHub : Hub
     {
         private readonly ILogger<KafkaHub> _logger;
-        private readonly Beacon _notifier;
 
-        public KafkaHub(ILogger<KafkaHub> logger, Beacon notifier)
+        public KafkaHub(ILogger<KafkaHub> logger)
         {
-            this._notifier = notifier;
             _logger = logger;
         }
 

@@ -3,26 +3,24 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Kraft.Shared;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+
+#if HAVE_REDIS
 using StackExchange.Redis;
 using static StackExchange.Redis.RedisChannel;
+#endif
 
 namespace Kraft.Server.Services
 {
     public class HeartBeator : IHostedService
     {
         private readonly CancellationTokenSource _tokenSource;
+        private readonly Random _rand;
         private readonly Hubs.Beacon _notifier;
 
-#if true
-        public HeartBeator(IOptions<AppSettings> appSettings, Hubs.Beacon notifier)
-        {
-            this._notifier = notifier;
-            _tokenSource = new CancellationTokenSource();
-
-        }
-#else
+#if HAVE_REDIS
         private readonly IConnectionMultiplexer _multiplexer;
         private readonly ISubscriber _subscriber;
 
@@ -33,23 +31,33 @@ namespace Kraft.Server.Services
 
             _multiplexer = multiplexer;
             _subscriber = multiplexer.GetSubscriber();
+
+        }
+#else
+        public HeartBeator(IOptions<AppSettings> appSettings, Hubs.Beacon notifier)
+        {
+            _notifier = notifier;
+            _tokenSource = new CancellationTokenSource();
+
+            _rand = new Random();
         }
 #endif
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Observable
-                .Interval(TimeSpan.FromSeconds(5))
+                .Interval(TimeSpan.FromMilliseconds(1000))
                 .SubscribeOn(ThreadPoolScheduler.Instance)
                 .ObserveOn(TaskPoolScheduler.Default)
-                .Subscribe(t =>
+                .Subscribe(async t =>
                 {
-#if false
+#if HAVE_REDIS
                     _subscriber.Publish(new RedisChannel("heartbeat", PatternMode.Auto), $"beating {t}");
 #else
-                    EventHandler handler = _notifier.HeatBeat;
+                    var strength = _rand.Next(0, 100);
+                    var beat = new Beat { Beats = t, TimeStamp = DateTime.Now, Strength = strength };
 
-                    handler?.Invoke(this, new EventArgs() );
+                    await _notifier.NotifyAsync(beat);
 #endif
                 }, _tokenSource.Token);
 
