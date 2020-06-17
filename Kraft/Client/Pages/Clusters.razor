@@ -1,8 +1,7 @@
 ﻿@page "/clusters"
 @using Microsoft.AspNetCore.SignalR.Client
-
-@using Newtonsoft.Json;
-@using Newtonsoft.Json.Linq;
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
 @implements IDisposable
 
 @inject HttpClient Http
@@ -42,7 +41,7 @@
     {
         hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/khub"))
-            .WithAutomaticReconnect(new [] {TimeSpan.FromSeconds(1)})
+            .WithAutomaticReconnect(new RandomRetryPolicy())
             .Build();
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
@@ -65,6 +64,19 @@
             _status = connectionId;
             StateHasChanged();
         });
+
+        hubConnection.Reconnecting += e => {
+            _status = "reconnecting";
+            StateHasChanged();
+            return Task.CompletedTask;
+        };
+
+        hubConnection.Closed += async(e)=> {
+            _status = $"Hub closed, {e}";
+
+            StateHasChanged();
+            await hubConnection.StartAsync();
+        };
 
         await hubConnection.StartAsync();
 
