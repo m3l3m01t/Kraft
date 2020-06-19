@@ -1,4 +1,6 @@
-﻿using Blazorise;
+﻿#define HAVE_REDIS
+
+using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 
@@ -68,12 +70,14 @@ namespace Kraft.Server
             services.AddDbContext<KraftContext>(options =>
                     options.UseSqlite(Configuration.GetConnectionString("SqliteContext")));
 
+#if HAVE_REDIS
             services.AddTransient<IConnectionMultiplexer>(sp => {
 
-                var config = sp.GetService<IOptions<Services.AppSettings>>().Value;
+                var config = sp.GetService<IOptions<AppSettings>>().Value;
 
                 return ConnectionMultiplexer.Connect(config.RedisHost);
             });
+#endif
 
             services.AddSingleton<Beacon>();
 

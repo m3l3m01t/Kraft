@@ -5,7 +5,8 @@
 @implements IDisposable
 
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navi
+@inject HubConnection _hub
 
 <h3>Clusters</h3>
 
@@ -32,104 +33,102 @@
 
     private string _status = "";
 
-    private HubConnection hubConnection;
     private List<string> messages = new List<string>();
     private string userInput;
     private string messageInput;
 
     protected override async Task OnInitializedAsync()
     {
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/khub"))
-            .WithAutomaticReconnect(new RandomRetryPolicy())
-            .Build();
-
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        _hub.On<string, string>("ReceiveMessage", (user, message) =>
         {
             var encodedMsg = $"{user}: {message}";
             messages.Add(encodedMsg);
             StateHasChanged();
         });
 
-        hubConnection.On<Kraft.Shared.Beat>("HeartBeat", o =>
+        _hub.On<Kraft.Shared.Beat>("HeartBeat", o =>
         {
-            var jObj = JObject.FromObject(o);
-            _status = jObj.ToString();
+            @* var jObj = JObject.FromObject(o); *@
+            _status = o.Payload;
 
             StateHasChanged();
         });
 
-        hubConnection.On<string>("Welcome", connectionId =>
-        {
-            _status = connectionId;
-            StateHasChanged();
-        });
-
-        hubConnection.Reconnecting += e => {
-            _status = "reconnecting";
-            StateHasChanged();
-            return Task.CompletedTask;
-        };
-
-        hubConnection.Closed += async(e)=> {
-            _status = $"Hub closed, {e}";
-
-            StateHasChanged();
-            await hubConnection.StartAsync();
-        };
-
-        await hubConnection.StartAsync();
-
-        _clusters = await Http.GetFromJsonAsync<Kraft.Shared.Cluster[]>("api/Clusters");
-
-        // always call StateHasChanged!
-        StateHasChanged();
-    }
-
-    Task Send() =>
-        hubConnection.SendAsync("SendMessage", userInput, messageInput);
-
-    public bool IsConnected =>
-        hubConnection.State == HubConnectionState.Connected;
-
-    public void Dispose()
+    _hub.On<string>("Welcome", connectionId =>
     {
-        _ = hubConnection.DisposeAsync();
-    }
-
-    private void OnConnect(Kraft.Shared.Cluster cluster)
-    {
-        Console.WriteLine("Hello world {0}", cluster.Name);
-
-        NavigationManager.NavigateTo($"clusters/{cluster.Id}");
-    }
-
-    private void OnNewClusterClicked(MouseEventArgs arg)
-    {
-        var cluster = new Kraft.Shared.Cluster { Name = "New Cluster" };
-        _modal.EditCluster(cluster, true);
-        //StateHasChanged();
-    }
-
-    private void OnHideModal()
-    {
-        //StateHasChanged();
-    }
-
-    private async Task OnSaveChanges(Kraft.Shared.Cluster cluster)
-    {
-        if (cluster.Id is null)
-        {
-            cluster.Id = Guid.NewGuid().ToString();
-            await Http.PostAsJsonAsync<Kraft.Shared.Cluster>("api/Clusters", cluster);
-        }
-        else
-        {
-            await Http.PutAsJsonAsync<Kraft.Shared.Cluster>($"api/Clusters/{cluster.Id}", cluster);
-        }
-
-        _clusters = await Http.GetFromJsonAsync<Kraft.Shared.Cluster[]>("api/Clusters");
+        _status = connectionId;
 
         StateHasChanged();
+    });
+
+
+    _hub.Reconnecting += e => {
+        _status = "reconnecting";
+        StateHasChanged();
+        return Task.CompletedTask;
+    };
+
+    _hub.Closed += async(e)=> {
+        _status = $"Hub closed, {e}";
+
+        StateHasChanged();
+        await _hub.StartAsync();
+    };
+
+
+    _hub.StartAsync().ConfigureAwait(false);
+
+
+    _clusters = (await Http.GetFromJsonAsync<IEnumerable<Kraft.Shared.Cluster>>("api/Clusters")).ToArray();
+
+    // always call StateHasChanged!
+    StateHasChanged();
+}
+
+Task Send() =>
+    _hub.SendAsync("SendMessage", userInput, messageInput);
+
+public bool IsConnected =>
+    _hub.State == HubConnectionState.Connected;
+
+public void Dispose()
+{
+    _ = _hub.DisposeAsync();
+}
+
+private void OnConnect(Kraft.Shared.Cluster cluster)
+{
+    Console.WriteLine("Hello world {0}", cluster.Name);
+
+    _navi.NavigateTo($"clusters/{cluster.Id}");
+}
+
+private void OnNewClusterClicked(MouseEventArgs arg)
+{
+    var cluster = new Kraft.Shared.Cluster { Name = "New Cluster" };
+    _modal.EditCluster(cluster, true);
+    //StateHasChanged();
+}
+
+private void OnHideModal()
+{
+    //StateHasChanged();
+}
+
+private async Task OnSaveChanges(Kraft.Shared.Cluster cluster)
+{
+    if (cluster.Id is null)
+    {
+        cluster.Id = Guid.NewGuid().ToString();
+        await Http.PostAsJsonAsync<Kraft.Shared.Cluster>("api/Clusters", cluster);
     }
+    else
+    {
+        await Http.PutAsJsonAsync<Kraft.Shared.Cluster>($"api/Clusters/{cluster.Id}", cluster);
+    }
+
+    _clusters = await Http.GetFromJsonAsync<Kraft.Shared.Cluster[]>("api/Clusters");
+
+    StateHasChanged();
+}
 }

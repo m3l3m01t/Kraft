@@ -1,3 +1,5 @@
+#define HAVE_REDIS
+
 using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -5,11 +7,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kraft.Shared;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 #if HAVE_REDIS
 using StackExchange.Redis;
-using static StackExchange.Redis.RedisChannel;
 #endif
 
 namespace Kraft.Server.Services
@@ -22,16 +24,22 @@ namespace Kraft.Server.Services
 
 #if HAVE_REDIS
         private readonly IConnectionMultiplexer _multiplexer;
+        private readonly ILogger<HeartBeator> _logger;
         private readonly ISubscriber _subscriber;
-
+        private int _beats = 0;
         public HeartBeator(IOptions<AppSettings> appSettings,
-                        IConnectionMultiplexer multiplexer)
+                        IConnectionMultiplexer multiplexer
+                        , Hubs.Beacon notifier,
+                        ILogger<HeartBeator> logger)
         {
             _tokenSource = new CancellationTokenSource();
+            _rand = new Random();
 
             _multiplexer = multiplexer;
-            _subscriber = multiplexer.GetSubscriber();
+            _notifier = notifier;
+            _logger = logger;
 
+            _subscriber = multiplexer.GetSubscriber();
         }
 #else
         public HeartBeator(IOptions<AppSettings> appSettings, Hubs.Beacon notifier)
@@ -45,23 +53,41 @@ namespace Kraft.Server.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+#if HAVE_REDIS
+            return _subscriber.SubscribeAsync(new RedisChannel("heartbeat", RedisChannel.PatternMode.Auto), async (channel, msg) =>
+            {
+                _logger.LogDebug($"Redising {msg.ToString()}");
+
+                var strength = _rand.Next(0, 100);
+
+                var beat = new Beat
+                {
+                    Beats = ++_beats,
+                    TimeStamp = DateTime.Now,
+                    Strength = strength,
+                    Payload = msg.ToString()
+                };
+
+                await _notifier.NotifyAsync(beat);
+            });
+            // _subscriber.Publish(new RedisChannel("heartbeat", PatternMode.Auto), $"beating {t}");
+#else
+
             Observable
                 .Interval(TimeSpan.FromMilliseconds(1000))
                 .SubscribeOn(ThreadPoolScheduler.Instance)
                 .ObserveOn(TaskPoolScheduler.Default)
                 .Subscribe(async t =>
                 {
-#if HAVE_REDIS
-                    _subscriber.Publish(new RedisChannel("heartbeat", PatternMode.Auto), $"beating {t}");
-#else
                     var strength = _rand.Next(0, 100);
                     var beat = new Beat { Beats = t, TimeStamp = DateTime.Now, Strength = strength };
 
                     await _notifier.NotifyAsync(beat);
-#endif
                 }, _tokenSource.Token);
 
             return Task.CompletedTask;
+#endif
+
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

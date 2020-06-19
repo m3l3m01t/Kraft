@@ -8,5 +8,7 @@ namespace Kraft.Shared
         public int Strength { get; set; }
 
         public long Beats { get; set; }
+
+        public string Payload {get;set;}
     }
 }

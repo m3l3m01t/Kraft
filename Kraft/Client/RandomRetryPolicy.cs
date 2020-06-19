@@ -13,7 +13,7 @@ namespace Kraft.Client
         }
         public TimeSpan? NextRetryDelay(RetryContext retryContext)
         {
-            return TimeSpan.FromSeconds(_rand.Next(2, 6));
+            return TimeSpan.FromSeconds(_rand.Next(1, 4));
         }
     }
 }
