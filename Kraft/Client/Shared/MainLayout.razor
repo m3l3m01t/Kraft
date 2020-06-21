@@ -1,13 +1,47 @@
 ﻿@inherits LayoutComponentBase
 
+@inject NavigationManager _navi
+
 <NavMenu />
 
 <div class="main">
-    <div class="top-row px-4">
-        <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
+    <div class="top-row px-4 justify-content-start">
+        <TopBar BaseUrl= "@_navi.BaseUri" Items="@_segments"></TopBar>
     </div>
 
     <div class="content px-4">
         @Body
     </div>
 </div>
+
+@code  {
+    private string[] _segments = Array.Empty<string>();
+    private string BaseUrl;
+
+    private string[] GetUriSegments(string url)
+    {
+            var loc = _navi.ToBaseRelativePath(url);
+
+            Console.WriteLine("current location {0}", loc);
+
+            var culture = new System.Globalization.CultureInfo("en");
+
+            var ti = culture.TextInfo;
+
+            return loc.Split('/', StringSplitOptions.RemoveEmptyEntries).Select(s=>ti.ToTitleCase(s)).ToArray();
+
+    }
+    protected override void OnInitialized()
+    {
+        var url = _navi.Uri.ToString();
+        
+        _segments = GetUriSegments(url); 
+
+        _navi.LocationChanged  += (sender, change) => {
+
+            _segments = GetUriSegments(change.Location); 
+
+            StateHasChanged();
+        };
+    }
+}

@@ -1,11 +1,11 @@
 <div>
     <Card>
-        <CardImage Source="/assets/images/9.jpg" Alt="Placeholder image" />
+        <CardHeader>
+            <CardTitle Size="5">KafkaCluster @Cluster.Name</CardTitle>
+        </CardHeader>
+        <CardImage Source="/assets/img/theme/leaflet.jpg" Alt="Placeholder image"></CardImage>
         <CardBody>
-            <CardTitle Size="5">Cluster @Cluster.Name</CardTitle>
-            <CardText>
-                @Cluster.Description
-            </CardText>
+            <CardText>@Cluster.Description</CardText>
             <Buttons>
                 <Button Color="Color.Primary" @onclick="OnConnect">Connect</Button>
                 <Button Color="Color.Secondary" Clicked="@OnEditCluster">Modify</Button>

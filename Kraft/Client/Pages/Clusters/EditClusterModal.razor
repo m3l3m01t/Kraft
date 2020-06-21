@@ -1,5 +1,4 @@
 ﻿<Modal @ref="_modal">
-    <ModalBackdrop />
     <ModalContent IsCentered="true">
         <ModalHeader>
             <ModalTitle>
@@ -10,8 +9,8 @@
         </ModalHeader>
         <ModalBody>
             <Field>
-                <FieldLabel>Cluster Name</FieldLabel>
-                <TextEdit Placeholder="Cluster Name..." @bind-Text="Value.Name" />
+                <FieldLabel>KafkaCluster Name</FieldLabel>
+                <TextEdit Placeholder="KafkaCluster Name..." @bind-Text="Value.Name" />
             </Field>
             <Field>
                 <FieldLabel>Bootstrap Servers</FieldLabel>
@@ -23,7 +22,7 @@
             </Field>
             <Field>
                 <FieldLabel>Description</FieldLabel>
-                <TextEdit Placeholder="Cluster description ..." @bind-Text="Value.Description" />
+                <TextEdit Placeholder="KafkaCluster description ..." @bind-Text="Value.Description" />
             </Field>
         </ModalBody>
         <ModalFooter>
@@ -39,20 +38,13 @@
     private string PrimaryText { get; set; }
     private string Title { get; set; }
 
-    public Kraft.Shared.Cluster Value { get; set; }
+    public Kraft.Shared.Cluster Value { get; set; } = new Kraft.Shared.Cluster();
 
     [Parameter]
     public EventCallback<Kraft.Shared.Cluster> OnSaveChanges { get; set; }
 
     [Parameter]
     public EventCallback OnHideModal { get; set; }
-
-    protected override Task OnInitializedAsync()
-    {
-        Value = new Kraft.Shared.Cluster { Name = "New Cluster" };
-
-        return base.OnInitializedAsync();
-    }
 
     private Task HideModal()
     {
@@ -75,12 +67,12 @@
         if (add)
         {
             PrimaryText = "Add";
-            Title = "Add Cluster";
+            Title = "Add KafkaCluster";
         }
         else
         {
             PrimaryText = "Apply";
-            Title = "Edit Cluster";
+            Title = "Edit KafkaCluster";
         }
 
         StateHasChanged();

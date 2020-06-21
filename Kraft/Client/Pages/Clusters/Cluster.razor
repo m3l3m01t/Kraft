@@ -1,0 +1,34 @@
+﻿@page "/clusters/{ClusterId}"
+
+@inject HttpClient _http
+
+<h1>@_kafkaCluster.Name</h1>
+
+<div>
+    <Field>
+        <FieldLabel>Bootstrap Servers</FieldLabel>
+        <FieldLabel>@_kafkaCluster.Brokers</FieldLabel>
+    </Field>
+    <Field>
+        <FieldLabel>ZooKeeper Servers</FieldLabel>
+        <FieldLabel>@_kafkaCluster.ZkServers</FieldLabel>
+    </Field>
+    <Field>
+        <FieldLabel>Description</FieldLabel>
+        <FieldLabel>@_kafkaCluster.Description</FieldLabel>
+    </Field>
+</div>
+
+@code {
+    [Parameter] 
+    public string ClusterId { get; set; }
+
+    private Kraft.Shared.KafkaCluster _kafkaCluster = new Kraft.Shared.KafkaCluster();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _kafkaCluster = await _http.GetFromJsonAsync<Kraft.Shared.KafkaCluster>($"api/cluster/{ClusterId}/detail");
+
+        StateHasChanged();
+    }
+}

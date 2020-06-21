@@ -8,19 +8,19 @@
 @inject NavigationManager _navi
 @inject HubConnection _hub
 
-<h3>Clusters</h3>
+<h1>KafkaClusters</h1>
 
-<EditClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges" />
+<EditKafkaClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges" />
 
 <Container class="clusters" Fluid="true">
-    <ClusterNewCard OnNewClusterCb="@OnNewClusterClicked" />
+    <KafkaClusterNewCard OnNewKafkaClusterCb="@OnNewClusterClicked" />
 
     @foreach (var cluster in _clusters)
     {
-        <ClusterCard Cluster=cluster
-                     OnEditCluster="@(()=>_modal.EditCluster(cluster, false))"
+        <KafkaClusterCard KafkaCluster=cluster
+                     OnEditKafkaCluster="@(()=>_modal.EditCluster(cluster, false))"
                      OnConnect="@(()=>OnConnect(cluster))">
-        </ClusterCard>
+        </KafkaClusterCard>
     }
 </Container>
 
@@ -105,8 +105,7 @@ private void OnConnect(Kraft.Shared.Cluster cluster)
 
 private void OnNewClusterClicked(MouseEventArgs arg)
 {
-    var cluster = new Kraft.Shared.Cluster { Name = "New Cluster" };
-    _modal.EditCluster(cluster, true);
+    _modal.EditCluster(new Kraft.Shared.Cluster(), true);
     //StateHasChanged();
 }
 

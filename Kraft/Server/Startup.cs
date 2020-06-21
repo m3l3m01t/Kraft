@@ -1,28 +1,19 @@
-﻿#define HAVE_REDIS
-
-using Blazorise;
+﻿using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
-
-using GraphQL.Server.Ui.GraphiQL;
-
+using Kraft.Server.Data;
+using Kraft.Server.Hubs;
+using Kraft.Server.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
-using System.Threading.Tasks;
-using GraphQL.Server;
-using Microsoft.EntityFrameworkCore;
-using Kraft.Server.Data;
-using Kraft.Server.Hubs;
-using Microsoft.AspNetCore.Http;
-using StackExchange.Redis;
 using Microsoft.Extensions.Options;
-using Kraft.Server.Services;
+using StackExchange.Redis;
+using System.Linq;
 
 namespace Kraft.Server
 {
@@ -49,9 +40,6 @@ namespace Kraft.Server
             .AddBootstrapProviders()
             .AddFontAwesomeIcons();
 
-            // services.AddGraphQL(opt =>
-            // {
-            // });
             services.AddHealthChecks();
 
             services.AddSignalR();
@@ -71,11 +59,16 @@ namespace Kraft.Server
                     options.UseSqlite(Configuration.GetConnectionString("SqliteContext")));
 
 #if HAVE_REDIS
-            services.AddTransient<IConnectionMultiplexer>(sp => {
-
+            services.AddTransient<IConnectionMultiplexer>(sp =>
+            {
                 var config = sp.GetService<IOptions<AppSettings>>().Value;
 
-                return ConnectionMultiplexer.Connect(config.RedisHost);
+                var opt = new ConfigurationOptions();
+                opt.EndPoints.Add(config.RedisHost);
+
+                return ConnectionMultiplexer.Connect(opt);
+
+                //return ConnectionMultiplexer.Connect(config.RedisHost);
             });
 #endif
 
@@ -103,7 +96,6 @@ namespace Kraft.Server
                 app.UseHsts();
             }
 
-
             //app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
@@ -116,23 +108,15 @@ namespace Kraft.Server
               .UseBootstrapProviders()
               .UseFontAwesomeIcons();
 
-            // app.UseAuthentication();
-            // app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
-
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
 
                 endpoints.MapHub<KafkaHub>("/khub");
 
-                // endpoints.MapHealthChecks("/healthz").RequireAuthorization();
                 endpoints.MapFallbackToFile("index.html");
-
-                //var nested = endpoints.CreateApplicationBuilder();
             });
-
         }
     }
 }

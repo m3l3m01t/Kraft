@@ -1,0 +1,100 @@
+openapi: '3.0.2'
+info:
+  title: Kafka Swagger API
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /cluster/{id}:
+    get:
+      tags: [cluster]
+      responses:
+        '200':
+          description: OK
+  /cluster/{id}/topics:
+    get:
+      tags: [cluster]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+
+components:
+  schemas:
+    Partition:
+      type: object
+      required:
+      - id
+      - first
+      - last
+      properties:
+        id:
+          type: integer
+        first:
+          type: integer
+          format: uint64
+        last:
+          type: integer
+          format: uint64
+        current:
+          type: integer
+          format: uint64
+    Topic:
+      type: object
+      properties:
+        name:
+          type: string
+        partitions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Partition"
+        consumerGroups:
+          type: array
+          items:
+            type: string
+    ConsumerGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        topics:
+          type: array 
+          items:
+            $ref: "#/components/schemas/Topic"
+    Cluster:
+      type: object
+      required:
+      - name
+      - brokers
+      properties:
+        name:
+          type: string
+        brokers:
+          type: string
+        zkServers:
+          type: string
+        description:
+          type: string
+
+  responses:
+    KafkaDetailResponse:
+      description: This is a response
+      content:
+        application/json:
+          schema:
+            type: string
+
+  parameters:
+    ExampleParameter:
+      name: name
+      in: query
+      required: true
+      description: This is an parameter example
+      schema:
+        type: string
+

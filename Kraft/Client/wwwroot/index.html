@@ -20,6 +20,7 @@
     <link href="_content/Blazorise.Bootstrap/blazorise.bootstrap.css" rel="stylesheet" />
 
     <link href="css/app.css" rel="stylesheet" />
+    <link href="css/argon.min.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -40,6 +41,12 @@
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
+
+<!-- Make sure you place it after the include for blazor.server.js -->
+
+    <environment include="Development">
+        <script src="~/hotreload.js"></script>
+    </environment>
 </body>
 
 </html>

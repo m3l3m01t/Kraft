@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Kraft.Shared;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Kraft.Server.Data
 {
@@ -14,6 +9,6 @@ namespace Kraft.Server.Data
         {
         }
 
-        public DbSet<Kraft.Shared.Cluster> Cluster { get; set; }
+        public DbSet<Kraft.Shared.Cluster> Clusters { get; set; }
     }
 }

@@ -1,8 +1,4 @@
-#define HAVE_REDIS
-
 using System;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kraft.Shared;
@@ -11,7 +7,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 #if HAVE_REDIS
+
 using StackExchange.Redis;
+
 #endif
 
 namespace Kraft.Server.Services
@@ -27,6 +25,7 @@ namespace Kraft.Server.Services
         private readonly ILogger<HeartBeator> _logger;
         private readonly ISubscriber _subscriber;
         private int _beats = 0;
+
         public HeartBeator(IOptions<AppSettings> appSettings,
                         IConnectionMultiplexer multiplexer
                         , Hubs.Beacon notifier,
@@ -41,6 +40,7 @@ namespace Kraft.Server.Services
 
             _subscriber = multiplexer.GetSubscriber();
         }
+
 #else
         public HeartBeator(IOptions<AppSettings> appSettings, Hubs.Beacon notifier)
         {
@@ -87,7 +87,6 @@ namespace Kraft.Server.Services
 
             return Task.CompletedTask;
 #endif
-
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
