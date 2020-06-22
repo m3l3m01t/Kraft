@@ -1,22 +1,22 @@
 ﻿<Card>
     <CardHeader>
-        <CardTitle Size="4">KafkaCluster @KafkaCluster.Name</CardTitle>
+        <CardTitle Size="4">Cluster @Cluster.Name</CardTitle>
     </CardHeader>
     <CardBody>
         <Field>
             <FieldLabel>Bootstrap Servers</FieldLabel>
-            <FieldLabel>@KafkaCluster.Brokers</FieldLabel>
+            <FieldLabel>@Cluster.Brokers</FieldLabel>
         </Field>
         <Field>
             <FieldLabel>ZooKeeper Servers</FieldLabel>
-            <FieldLabel>@KafkaCluster.ZkServers</FieldLabel>
+            <FieldLabel>@Cluster.ZkServers</FieldLabel>
         </Field>
-        <CardText>@KafkaCluster.Description</CardText>
+        <CardText>@Cluster.Description</CardText>
     </CardBody>
 </Card>
 
 @code {
     [Parameter]
-    public Kraft.Shared.KafkaCluster KafkaCluster { get; set; }
+    public Kraft.Shared.Cluster Cluster { get; set; }
 
 }

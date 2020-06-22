@@ -70,9 +70,7 @@ namespace Kraft.Server.Services
 
                 await _notifier.NotifyAsync(beat);
             });
-            // _subscriber.Publish(new RedisChannel("heartbeat", PatternMode.Auto), $"beating {t}");
 #else
-
             Observable
                 .Interval(TimeSpan.FromMilliseconds(1000))
                 .SubscribeOn(ThreadPoolScheduler.Instance)

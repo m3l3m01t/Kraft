@@ -9,8 +9,8 @@
         </ModalHeader>
         <ModalBody>
             <Field>
-                <FieldLabel>KafkaCluster Name</FieldLabel>
-                <TextEdit Placeholder="KafkaCluster Name..." @bind-Text="Value.Name" />
+                <FieldLabel>Cluster Name</FieldLabel>
+                <TextEdit Placeholder="Cluster Name..." @bind-Text="Value.Name" />
             </Field>
             <Field>
                 <FieldLabel>Bootstrap Servers</FieldLabel>
@@ -22,7 +22,7 @@
             </Field>
             <Field>
                 <FieldLabel>Description</FieldLabel>
-                <TextEdit Placeholder="KafkaCluster description ..." @bind-Text="Value.Description" />
+                <TextEdit Placeholder="Cluster description ..." @bind-Text="Value.Description" />
             </Field>
         </ModalBody>
         <ModalFooter>
@@ -67,12 +67,12 @@
         if (add)
         {
             PrimaryText = "Add";
-            Title = "Add KafkaCluster";
+            Title = "Add Cluster";
         }
         else
         {
             PrimaryText = "Apply";
-            Title = "Edit KafkaCluster";
+            Title = "Edit Cluster";
         }
 
         StateHasChanged();

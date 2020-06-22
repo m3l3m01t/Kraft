@@ -25,14 +25,14 @@ namespace Kraft.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cluster>>> GetCluster()
         {
-            return await _context.Clusters.ToListAsync();
+            return await _context.Cluster.ToListAsync();
         }
 
         // GET: api/Clusters/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Cluster>> GetCluster(string id)
         {
-            var cluster = await _context.Clusters.FindAsync(id);
+            var cluster = await _context.Cluster.FindAsync(id);
 
             if (cluster == null)
             {
@@ -82,7 +82,7 @@ namespace Kraft.Server.Controllers
         {
             try
             {
-                await _context.Clusters.AddAsync(cluster);
+                await _context.Cluster.AddAsync(cluster);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException)
@@ -104,13 +104,13 @@ namespace Kraft.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Cluster>> DeleteCluster(string id)
         {
-            var cluster = await _context.Clusters.FindAsync(id);
+            var cluster = await _context.Cluster.FindAsync(id);
             if (cluster == null)
             {
                 return NotFound();
             }
 
-            _context.Clusters.Remove(cluster);
+            _context.Cluster.Remove(cluster);
             await _context.SaveChangesAsync();
 
             return cluster;
@@ -118,7 +118,7 @@ namespace Kraft.Server.Controllers
 
         private bool ClusterExists(string id)
         {
-            return _context.Clusters.Any(e => e.Id == id);
+            return _context.Cluster.Any(e => e.Id == id);
         }
     }
 }

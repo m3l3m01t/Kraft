@@ -5,29 +5,35 @@
 <h1>@_kafkaCluster.Name</h1>
 
 <div>
-    <Field>
-        <FieldLabel>Bootstrap Servers</FieldLabel>
-        <FieldLabel>@_kafkaCluster.Brokers</FieldLabel>
+    <Field Horizontal="false">
+        <FieldLabel ColumnSize="ColumnSize.Is2">Bootstrap Servers</FieldLabel>
+        <FieldBody ColumnSize="ColumnSize.Is4">
+            <TextEdit Disabled="true" @bind-Text="@_kafkaCluster.Brokers"></TextEdit>
+        </FieldBody>
     </Field>
-    <Field>
-        <FieldLabel>ZooKeeper Servers</FieldLabel>
-        <FieldLabel>@_kafkaCluster.ZkServers</FieldLabel>
+    <Field Horizontal="false">
+        <FieldLabel ColumnSize="ColumnSize.Is2">ZooKeeper Servers</FieldLabel>
+        <FieldBody ColumnSize="ColumnSize.Is4">
+            <TextEdit Disabled="true" @bind-Text="@_kafkaCluster.ZkServers"></TextEdit>
+        </FieldBody>
     </Field>
-    <Field>
-        <FieldLabel>Description</FieldLabel>
-        <FieldLabel>@_kafkaCluster.Description</FieldLabel>
+    <Field Horizontal="false">
+        <FieldLabel ColumnSize="ColumnSize.Is2">Description</FieldLabel>
+        <FieldBody ColumnSize="ColumnSize.Is4">
+            <TextEdit Disabled="true" @bind-Text="@_kafkaCluster.Description"></TextEdit>
+        </FieldBody>
     </Field>
 </div>
 
 @code {
-    [Parameter] 
+    [Parameter]
     public string ClusterId { get; set; }
 
-    private Kraft.Shared.KafkaCluster _kafkaCluster = new Kraft.Shared.KafkaCluster();
+    private Kraft.Shared.Cluster _kafkaCluster = new Kraft.Shared.Cluster();
 
     protected override async Task OnInitializedAsync()
     {
-        _kafkaCluster = await _http.GetFromJsonAsync<Kraft.Shared.KafkaCluster>($"api/cluster/{ClusterId}/detail");
+        _kafkaCluster = await _http.GetFromJsonAsync<Kraft.Shared.Cluster>($"api/clusters/{ClusterId}");
 
         StateHasChanged();
     }

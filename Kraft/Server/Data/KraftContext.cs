@@ -9,6 +9,6 @@ namespace Kraft.Server.Data
         {
         }
 
-        public DbSet<Kraft.Shared.Cluster> Clusters { get; set; }
+        public DbSet<Kraft.Shared.Cluster> Cluster { get; set; }
     }
 }

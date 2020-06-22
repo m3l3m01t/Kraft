@@ -8,19 +8,19 @@
 @inject NavigationManager _navi
 @inject HubConnection _hub
 
-<h1>KafkaClusters</h1>
+<h1>Clusters</h1>
 
-<EditKafkaClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges" />
+<EditClusterModal @ref="_modal" OnHideModal="@OnHideModal" OnSaveChanges="@OnSaveChanges" />
 
 <Container class="clusters" Fluid="true">
-    <KafkaClusterNewCard OnNewKafkaClusterCb="@OnNewClusterClicked" />
+    <ClusterNewCard OnNewClusterCb="@OnNewClusterClicked" />
 
     @foreach (var cluster in _clusters)
     {
-        <KafkaClusterCard KafkaCluster=cluster
-                     OnEditKafkaCluster="@(()=>_modal.EditCluster(cluster, false))"
+        <ClusterCard Cluster=cluster
+                     OnEditCluster="@(()=>_modal.EditCluster(cluster, false))"
                      OnConnect="@(()=>OnConnect(cluster))">
-        </KafkaClusterCard>
+        </ClusterCard>
     }
 </Container>
 
@@ -75,14 +75,11 @@
         await _hub.StartAsync();
     };
 
-
-    _hub.StartAsync().ConfigureAwait(false);
-
-
-    _clusters = (await Http.GetFromJsonAsync<IEnumerable<Kraft.Shared.Cluster>>("api/Clusters")).ToArray();
-
-    // always call StateHasChanged!
-    StateHasChanged();
+    await _hub.StartAsync().ContinueWith(async t => {
+        _clusters = (await Http.GetFromJsonAsync<IEnumerable<Kraft.Shared.Cluster>>("api/Clusters")).ToArray();
+        // always call StateHasChanged!
+        StateHasChanged();
+    }, TaskContinuationOptions.RunContinuationsAsynchronously);
 }
 
 Task Send() =>
