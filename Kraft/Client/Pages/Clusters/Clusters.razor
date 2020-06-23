@@ -34,8 +34,6 @@
     private string _status = "";
 
     private List<string> messages = new List<string>();
-    private string userInput;
-    private string messageInput;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,9 +46,7 @@
 
         _hub.On<Kraft.Shared.Beat>("HeartBeat", o =>
         {
-            @* var jObj = JObject.FromObject(o); *@
             _status = o.Payload;
-
             StateHasChanged();
         });
 
@@ -75,15 +71,15 @@
         await _hub.StartAsync();
     };
 
-    await _hub.StartAsync().ContinueWith(async t => {
-        _clusters = (await Http.GetFromJsonAsync<IEnumerable<Kraft.Shared.Cluster>>("api/Clusters")).ToArray();
+    var t0 =_hub.StartAsync();
+    var t1 = Http.GetFromJsonAsync<IEnumerable<Kraft.Shared.Cluster>>("api/Clusters").ContinueWith(
+        t=> {
+            _clusters = t.Result.ToArray();
+        });
         // always call StateHasChanged!
-        StateHasChanged();
-    }, TaskContinuationOptions.RunContinuationsAsynchronously);
+    await Task.WhenAll(t0, t1);
 }
 
-Task Send() =>
-    _hub.SendAsync("SendMessage", userInput, messageInput);
 
 public bool IsConnected =>
     _hub.State == HubConnectionState.Connected;
